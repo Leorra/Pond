@@ -1,5 +1,5 @@
 ﻿// ======================================================
-// [+] A very seroius the Frozen Pond problem project [+]
+// [+] A very serious the Frozen Pond problem project [+]
 // https://github.com/Leorra
 // ======================================================
 
