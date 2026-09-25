@@ -23,7 +23,7 @@ namespace pond {
 	template <std::size_t width_, std::size_t height_>
 	class alignas(64) Pond {
 	private:
-		std::array<Type, width_ * height_> grid_ {};
+		std::array<Type, width_* height_> grid_ {};
 
 	public:
 		Pond() { grid_[0] = Type::Start; grid_[width_ * height_ - 1] = Type::Goal; }
@@ -96,6 +96,17 @@ namespace pond {
 				return std::nullopt;
 			} return Position { static_cast<std::size_t>(nx), static_cast<std::size_t>(ny) };
 		}
+
+		// Utility method for Gamma back-tracing
+		[[nodiscard]] Direction getReversedDirection(const Direction dir) const noexcept {
+			switch (dir) {
+				case Direction::Up: return Direction::Down;
+				case Direction::Down: return Direction::Up;
+				case Direction::Left:	return Direction::Right;
+				case Direction::Right: return Direction::Left;
+				default: return Direction::Count;
+			}
+		}
 	};
 
 	// Q-Table implementation for reinforcement learning, parameterized by a grid type (e.g., Pond)
@@ -131,57 +142,6 @@ namespace pond {
 	public:
 		explicit QTable(const Grid& pond, std::uint32_t seed = kDefaultSeed_)
 			: pond_(pond), rng_(seed) {
-		}
-
-		// Combine two Q-tables by adding their Q-values and visit counts, returning the updated Q-table
-		QTable& operator+=(const QTable& rhs) noexcept {
-			for (std::size_t i = 0; i < q_table_.size(); ++i) {
-				for (std::size_t a = 0; a < kNumActions_; ++a) {
-					q_table_[i][a] += rhs.q_table_[i][a];
-					q_visits_[i][a] += rhs.q_visits_[i][a];
-				}
-			} return *this;
-		}
-
-		// Get the dimensions of the Q-table
-		[[nodiscard]] static constexpr std::size_t getWidth() noexcept { return width_; }
-		[[nodiscard]] static constexpr std::size_t getHeight() noexcept { return height_; }
-
-		// Set the random seed for reproducibility
-		void setSeed(std::uint32_t seed) noexcept { rng_.setSeed(seed); }
-
-		// Get the maximum Q-value for a given position across all possible actions,
-		// returning -infinity if no valid actions exist
-		[[nodiscard]] float getMaxQValue(Position pos) const noexcept {
-			float max_q = -std::numeric_limits<float>::infinity();
-			for (std::size_t i = 0; i < kNumActions_; ++i) {
-				const auto dir = static_cast<Direction>(i);
-				const float q_value = getQValue(pos, dir);
-				if (q_value > max_q) { max_q = q_value; }
-			} return max_q;
-		}
-
-		// Get the Q-value for a given position and direction, returning 0.0f if out of bounds or unvisited
-		[[nodiscard]] float getQValue(Position pos, Direction dir) const noexcept {
-			const auto idx = static_cast<std::size_t>(dir);
-			if (idx >= kNumActions_) [[unlikely]] { return 0.0f; }
-			const auto pos_idx = Grid::getIndex(pos);
-			if (!pos_idx.has_value()) [[unlikely]] { return 0.0f; }
-			float q_value = q_table_[*pos_idx][idx];
-			std::size_t visits = q_visits_[*pos_idx][idx];
-			if (visits == 0) [[unlikely]] { return 0.0f; }
-			return q_value / static_cast<float>(visits);
-		}
-
-		// Add a Q-value for a given position and direction, updating the visit count
-		[[nodiscard]] bool addQValue(Position pos, Direction dir, float value) noexcept {
-			const auto idx = static_cast<std::size_t>(dir);
-			if (idx >= kNumActions_) [[unlikely]] { return false; }
-			const auto pos_idx = Grid::getIndex(pos);
-			if (!pos_idx.has_value()) [[unlikely]] { return false; }
-			q_table_[*pos_idx][idx] += value;
-			q_visits_[*pos_idx][idx] += 1;
-			return true;
 		}
 	};
 

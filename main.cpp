@@ -1,4 +1,9 @@
-﻿#include <print>
+﻿// ======================================================
+// [+] A very seroius the Frozen Pond problem project [+]
+// https://github.com/Leorra
+// ======================================================
+
+#include <print>
 #include <random>
 #include "Pond.hpp"
 #include "PondUtils.hpp"
