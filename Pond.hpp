@@ -60,12 +60,9 @@ namespace pond {
 			const Type target_cell = grid_[*idx];
 			if (type == Type::Start || type == Type::Goal) {
 				if (target_cell != Type::Empty && target_cell != type) { return Type::Count; }
-				for (auto& cell : grid_) {
-					if (cell == type) { cell = Type::Empty; }
-				}
+				for (auto& cell : grid_) { if (cell == type) { cell = Type::Empty; } }
 			}
-			const Type old_type = target_cell;
-			grid_[*idx] = type;
+			const Type old_type = target_cell; grid_[*idx] = type;
 			return old_type;
 		}
 
@@ -93,7 +90,8 @@ namespace pond {
 			if (nx < 0 || nx >= static_cast<std::ptrdiff_t>(width_) ||
 				ny < 0 || ny >= static_cast<std::ptrdiff_t>(height_)) {
 				return std::nullopt;
-			} return Position { static_cast<std::size_t>(nx), static_cast<std::size_t>(ny) };
+			}
+			return Position { static_cast<std::size_t>(nx), static_cast<std::size_t>(ny) };
 		}
 
 		// Utility method for Gamma back-tracing
@@ -119,6 +117,8 @@ namespace pond {
 
 		static constexpr std::size_t kNumActions_ = static_cast<std::size_t>(Direction::Count);
 		static constexpr std::uint32_t kDefaultSeed_ = 1337U;
+		static constexpr float kInfinity_ = static_cast<float>(std::numeric_limits<float>::infinity());
+
 
 		// SoA implementation of the Q-table for better cache locality and performance
 		std::array<std::array<float, width_* height_>, kNumActions_> q_table_ {};
@@ -153,7 +153,7 @@ namespace pond {
 
 		// Get Max Q-value action, randomly chosen among tied float values
 		[[nodiscard]] Direction getMaxQAction(Position pos) const noexcept {
-			float max_q = -std::numeric_limits<float>::infinity();
+			float max_q = -kInfinity_;
 			std::array<Direction, kNumActions_> best_actions {};
 			std::size_t count = 0;
 			static constexpr float kEpsilon = 1e-6f;
@@ -162,7 +162,7 @@ namespace pond {
 				const float q_value = getQValue(pos, dir);
 				if (q_value - max_q > kEpsilon) {
 					max_q = q_value; best_actions[0] = dir; count = 1;
-				} else if (std::abs(q_value - max_q) <= kEpsilon && q_value != -std::numeric_limits<float>::infinity()) {
+				} else if (std::abs(q_value - max_q) <= kEpsilon && q_value != -kInfinity_) {
 					best_actions[count++] = dir;
 				}
 			} if (count == 0) { return Direction::Count; }
@@ -179,19 +179,19 @@ namespace pond {
 	// Path class to store a sequence of steps, with a fixed capacity
 	template <typename T, std::size_t Capacity>
 	struct Path {
-		std::array<T, Capacity> data {};
-		std::size_t count = 0;
+		std::array<T, Capacity> data_ {};
+		std::size_t count_ = 0;
 
 		inline bool push(const T& item) noexcept {
-			if (count < Capacity) [[likely]] { data[count++] = item; return true; }
-			return false;
+			if (count_ < Capacity) [[likely]] { data_[count_++] = item; return true; } return false;
 		}
-		inline void clear() noexcept { count = 0; }
-		[[nodiscard]] inline std::size_t size() const noexcept { return count; }
-		[[nodiscard]] inline bool empty() const noexcept { return count == 0; }
 
-		[[nodiscard]] inline auto rbegin() const noexcept { return std::make_reverse_iterator(data.begin() + count); }
-		[[nodiscard]] inline auto rend() const noexcept { return std::make_reverse_iterator(data.begin()); }
+		inline void clear() noexcept { count_ = 0; }
+		[[nodiscard]] inline std::size_t size() const noexcept { return count_; }
+		[[nodiscard]] inline bool empty() const noexcept { return count_ == 0; }
+
+		[[nodiscard]] inline auto rbegin() const noexcept { return std::make_reverse_iterator(data_.begin() + count_); }
+		[[nodiscard]] inline auto rend() const noexcept { return std::make_reverse_iterator(data_.begin()); }
 	};
 
 } // namespace pond
