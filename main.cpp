@@ -1,9 +1,9 @@
 ﻿/*
-=============================================================
-[+] A very serious the Frozen Pond problem project        [+]
-[+] C++ 23 Code Standard, SoA SIMD friendly implementaion [+]
-[+] https://github.com/Leorra                             [+]
-=============================================================
+======================================================
+[+] A very serious the Frozen Pond problem project [+]
+[+] C++ 23 Code Standard, SoA SIMD friendly Design [+]
+[+] https://github.com/Leorra                      [+]
+======================================================
 */
 
 #include <print>
