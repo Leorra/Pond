@@ -1,8 +1,8 @@
 ﻿#pragma once
 
 #include <array>
-#include <cassert>
 #include <cstdint>
+#include <cstdlib>
 #include <iterator>
 #include <limits>
 #include <optional>
@@ -15,7 +15,8 @@ namespace pond {
 	enum class Direction : std::uint8_t { Up, Down, Left, Right, Count }; // Possible movement directions
 
 	struct Position {
-		std::size_t x_; std::size_t y_;
+		std::size_t x_;
+		std::size_t y_;
 		[[nodiscard]] constexpr bool operator==(const Position&) const noexcept = default;
 	};
 
@@ -34,8 +35,6 @@ namespace pond {
 
 		// Check if a position is within the bounds of the pond
 		[[nodiscard]] static constexpr bool inBounds(Position pos) noexcept {
-			// Assert the boundaries state for debugging
-			assert(pos.x_ < width_ && pos.y_ < height_ && "inBounds(): Out of bounds");
 			return pos.x_ < width_ && pos.y_ < height_;
 		}
 
@@ -98,7 +97,7 @@ namespace pond {
 		}
 
 		// Utility method for Gamma back-tracing
-		[[nodiscard]] Direction getReversedDirection(const Direction dir) const noexcept {
+		[[nodiscard]] static constexpr Direction getReversedDirection(const Direction dir) noexcept {
 			switch (dir) {
 				case Direction::Up: return Direction::Down;
 				case Direction::Down: return Direction::Up;
@@ -115,19 +114,32 @@ namespace pond {
 	private:
 		const Grid& pond_; // Reference to the grid (Pond) for which the Q-table is being maintained
 
-		static constexpr std::size_t kNumActions_ = static_cast<std::size_t>(Direction::Count);
-		static constexpr std::uint32_t kDefaultSeed_ = 1337U;
-
 		static constexpr std::size_t width_ = Grid::getWidth();
 		static constexpr std::size_t height_ = Grid::getHeight();
 
+		static constexpr std::size_t kNumActions_ = static_cast<std::size_t>(Direction::Count);
+		static constexpr std::uint32_t kDefaultSeed_ = 1337U;
+
 		// SoA implementation of the Q-table for better cache locality and performance
-		std::array<std::array<float, kNumActions_>, width_* height_> q_table_ {};
-		std::array<std::array<std::size_t, kNumActions_>, width_* height_> q_visits_ {};
+		std::array<std::array<float, width_* height_>, kNumActions_> q_table_ {};
+		std::array<std::array<std::size_t, width_* height_>, kNumActions_> q_visits_ {};
 
-		XorShift32 rng_ { kDefaultSeed_ };
+		mutable XorShift32 rng_ { kDefaultSeed_ };
 
-		// Get a random direction from the set of possible actions for epsilon-greedy exploration
+		// Get the Q-value for a given position and direction,
+		// returning -infinity if out of bounds or 0.0f for unvisited
+		[[nodiscard]] float getQValue(Position pos, Direction dir) const noexcept {
+			const auto idx = static_cast<std::size_t>(dir);
+			if (idx >= kNumActions_) [[unlikely]] { return -std::numeric_limits<float>::infinity(); }
+			const auto pos_idx = Grid::getIndex(pos);
+			if (!pos_idx.has_value()) [[unlikely]] { return -std::numeric_limits<float>::infinity(); }
+			const std::size_t visits = q_visits_[idx][*pos_idx];
+			if (visits == 0) [[unlikely]] { return 0.0f; }
+			const float q_value = q_table_[idx][*pos_idx];
+			return q_value / static_cast<float>(visits);
+		}
+
+		// Get a random direction from the set of possible actions for e-greedy exploration
 		[[nodiscard]] Direction getRandomValidDirection(Position pos) noexcept {
 			std::array<Direction, kNumActions_> valid_dirs {};
 			std::size_t valid_count = 0;
@@ -137,6 +149,25 @@ namespace pond {
 			} if (valid_count == 0) [[unlikely]] { return Direction::Count; }
 			const std::size_t random_index = rng_.getRandomInt(static_cast<std::uint32_t>(valid_count));
 			return valid_dirs[random_index];
+		}
+
+		// Get Max Q-value action, randomly chosen among tied float values
+		[[nodiscard]] Direction getMaxQAction(Position pos) const noexcept {
+			float max_q = -std::numeric_limits<float>::infinity();
+			std::array<Direction, kNumActions_> best_actions {};
+			std::size_t count = 0;
+			static constexpr float kEpsilon = 1e-6f;
+			for (std::size_t i = 0; i < kNumActions_; ++i) {
+				const auto dir = static_cast<Direction>(i);
+				const float q_value = getQValue(pos, dir);
+				if (q_value - max_q > kEpsilon) {
+					max_q = q_value; best_actions[0] = dir; count = 1;
+				} else if (std::abs(q_value - max_q) <= kEpsilon && q_value != -std::numeric_limits<float>::infinity()) {
+					best_actions[count++] = dir;
+				}
+			} if (count == 0) { return Direction::Count; }
+			const std::size_t index = rng_.getRandomInt(static_cast<std::uint32_t>(count));
+			return best_actions[index];
 		}
 
 	public:
@@ -151,7 +182,10 @@ namespace pond {
 		std::array<T, Capacity> data {};
 		std::size_t count = 0;
 
-		inline void push(const T& item) noexcept { if (count < Capacity) [[likely]] { data[count++] = item; } }
+		inline bool push(const T& item) noexcept {
+			if (count < Capacity) [[likely]] { data[count++] = item; return true; }
+			return false;
+		}
 		inline void clear() noexcept { count = 0; }
 		[[nodiscard]] inline std::size_t size() const noexcept { return count; }
 		[[nodiscard]] inline bool empty() const noexcept { return count == 0; }

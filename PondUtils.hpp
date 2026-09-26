@@ -34,7 +34,7 @@ namespace pond {
         static constexpr std::size_t height_ = Grid::getHeight();
 
         static constexpr std::array<std::string_view,
-            static_cast<std::size_t>(Type::Count)> kTypeStrings { " ", "S", "G", "H", "*" };
+            static_cast<std::size_t>(Type::Count)> kTypeStrings { "+", "S", "G", "H", "*" };
         static constexpr std::array<std::string_view, static_cast<std::size_t>(Type::Count)> kTypeColors {
             "\033[97m", "\033[92m", "\033[33m", "\033[94m", "\033[31m"
         };
