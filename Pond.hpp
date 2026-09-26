@@ -90,8 +90,7 @@ namespace pond {
 			if (nx < 0 || nx >= static_cast<std::ptrdiff_t>(width_) ||
 				ny < 0 || ny >= static_cast<std::ptrdiff_t>(height_)) {
 				return std::nullopt;
-			}
-			return Position { static_cast<std::size_t>(nx), static_cast<std::size_t>(ny) };
+			} return Position { static_cast<std::size_t>(nx), static_cast<std::size_t>(ny) };
 		}
 
 		// Utility method for Gamma back-tracing
@@ -176,7 +175,7 @@ namespace pond {
 		}
 	};
 
-	// Path class to store a sequence of steps, with a fixed capacity
+	// Basic stack class to store a sequence of steps, with a fixed capacity
 	template <typename T, std::size_t Capacity>
 	struct Path {
 		std::array<T, Capacity> data_ {};
