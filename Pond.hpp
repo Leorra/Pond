@@ -25,6 +25,9 @@ namespace pond {
 	public:
 		Pond() { grid_[0] = Type::Start; grid_[width_ * height_ - 1] = Type::Goal; }
 
+		// Get access to the grid_ array
+		[[nodiscard]] const std::array<Type, width_* height_>& getGrid() const noexcept { return grid_; }
+
 		// Get the dimensions of the pond
 		[[nodiscard]] static constexpr std::size_t getWidth() noexcept { return width_; }
 		[[nodiscard]] static constexpr std::size_t getHeight() noexcept { return height_; }

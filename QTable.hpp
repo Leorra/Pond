@@ -27,20 +27,6 @@ private:
 
 	mutable XorShift32 rng_ { kDefaultSeed_ };
 
-	// Get the Q-value for a given position and direction,
-	// returning -infinity if out of bounds, if the direction leads off the grid, or 0.0f for unvisited
-	[[nodiscard]] float getQValue(Position pos, Direction dir) const noexcept {
-		const auto idx = static_cast<std::size_t>(dir);
-		if (idx >= kNumActions_) [[unlikely]] { return -kInfinity_; }
-		if (!Grid::getNextPosition(pos, dir).has_value()) [[unlikely]] { return -kInfinity_; }
-		const auto pos_idx = Grid::getIndex(pos);
-		if (!pos_idx.has_value()) [[unlikely]] { return -kInfinity_; }
-		const std::size_t visits = q_visits_[idx][*pos_idx];
-		if (visits == 0) [[unlikely]] { return 0.0f; }
-		const float q_value = q_table_[idx][*pos_idx];
-		return q_value / static_cast<float>(visits);
-	}
-
 	// Get a random direction from the set of possible actions for e-greedy exploration
 	[[nodiscard]] Direction getRandomValidDirection(Position pos) noexcept {
 		std::array<Direction, kNumActions_> valid_dirs {};
@@ -53,13 +39,27 @@ private:
 		return valid_dirs[random_index];
 	}
 
+	// Get the Q-value for a given position and direction,
+	// returning -infinity if out of bounds or 0.0f for unvisited
+	[[nodiscard]] float getQValue(Position pos, Direction dir) const noexcept {
+		const auto idx = static_cast<std::size_t>(dir);
+		if (idx >= kNumActions_) [[unlikely]] { return -kInfinity_; }
+		if (!Grid::getNextPosition(pos, dir).has_value()) [[unlikely]] { return -kInfinity_; }
+		const auto pos_idx = Grid::getIndex(pos);
+		if (!pos_idx.has_value()) [[unlikely]] { return -kInfinity_; }
+		const std::size_t visits = q_visits_[idx][*pos_idx];
+		if (visits == 0) [[unlikely]] { return 0.0f; }
+		const float q_value = q_table_[idx][*pos_idx];
+		return q_value / static_cast<float>(visits);
+	}
+
 	// Get Max Q-value action, randomly chosen among tied float values.
 	// Actions leading off the grid (getQValue == -infinity) are excluded outright.
 	[[nodiscard]] Direction getMaxQAction(Position pos) const noexcept {
+		static constexpr float kEpsilon = 1e-6f;
 		float max_q = -kInfinity_;
 		std::array<Direction, kNumActions_> best_actions {};
-		std::size_t count = 0;
-		static constexpr float kEpsilon = 1e-6f;
+		std::size_t count = 0;		
 		for (std::size_t i = 0; i < kNumActions_; ++i) {
 			const auto dir = static_cast<Direction>(i);
 			const float q_value = getQValue(pos, dir);
