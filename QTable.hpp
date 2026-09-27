@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <limits>
 
+#include "Path.hpp"
 #include "Pond.hpp"
 #include "XorShift32.hpp"
 
@@ -19,7 +20,6 @@ namespace pond {
 		static constexpr std::size_t kNumActions_ = static_cast<std::size_t>(Direction::Count);
 		static constexpr std::uint32_t kDefaultSeed_ = 1337U;
 		static constexpr float kInfinity_ = static_cast<float>(std::numeric_limits<float>::infinity());
-
 
 		// SoA implementation of the Q-table for better cache locality and performance
 		std::array<std::array<float, width_* height_>, kNumActions_> q_table_ {};
@@ -69,10 +69,16 @@ namespace pond {
 				if (diff > kEpsilon) {
 					max_q = q_value; best_actions[0] = dir; count = 1;
 				} else if (diff >= -kEpsilon) { best_actions[count++] = dir; }
-			} if (count == 0) [[unlikely]] { return Direction::Count; }
+			}
+			if (count == 0) [[unlikely]] { return Direction::Count; }
 			const std::size_t index = rng_.getRandomInt(static_cast<std::uint32_t>(count));
 			return best_actions[index];
 		}
+
+		//Greeks
+		static constexpr float alpha_ = 0.1f;    // Learning rate
+		static constexpr float gamma_ = 0.9999f; // Distance discount
+		static constexpr float step_ = -0.01f;   // Step doscount for horizon increace
 
 	public:
 		explicit QTable(const Grid& pond, std::uint32_t seed = kDefaultSeed_)
