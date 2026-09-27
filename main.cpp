@@ -11,6 +11,7 @@
 
 #include "Pond.hpp"
 #include "PondUtils.hpp"
+#include "QTable.hpp"
 
 using namespace pond;
 
@@ -20,12 +21,13 @@ static constexpr float kHolesRate = 0.25f;
 
 int main() {
 	Pond<kPondWidth, kPondHeight> pond;
-
 	std::random_device random_device;
 
 	PondUtils utils { pond };
 	const bool success = utils.populateHoles(kHolesRate, random_device); utils.print(true);
 	if (!success) { std::println("Warning: Could not place all requested holes."); }
+
+	QTable<Pond<kPondWidth, kPondHeight>> q_table { pond };
 
 	return 0;
 }
