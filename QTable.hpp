@@ -111,8 +111,8 @@ namespace pond {
 			const std::size_t max_len = path.capacity();
 			for (std::size_t n = 0; n < max_len; ++n) {
 				// ...
-			}
-			return true;
+			} return true;
 		}
+	};
 
-	} // namespace pond
+} // namespace pond
