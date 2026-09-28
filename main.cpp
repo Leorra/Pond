@@ -11,6 +11,7 @@
 
 #include "Pond.hpp"
 #include "PondUtils.hpp"
+#include "Path.hpp"
 #include "QTable.hpp"
 
 using namespace pond;
@@ -18,6 +19,8 @@ using namespace pond;
 static constexpr std::size_t kPondWidth = 30;
 static constexpr std::size_t kPondHeight = 20;
 static constexpr float kHolesRate = 0.5f;
+
+static constexpr std::size_t kPathLength = kPondWidth * kPondHeight * 10;
 
 int main() {
 	Pond<kPondWidth, kPondHeight> pond;
@@ -35,7 +38,10 @@ int main() {
 
 	pond_utils.print(true);
 
+	Path<Direction, kPathLength> path;
 	QTable<Pond<kPondWidth, kPondHeight>> q_table { pond };
+
+	static_cast<void>(q_table.createPath(path));
 
 	return 0;
 }

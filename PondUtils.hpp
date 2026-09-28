@@ -1,4 +1,12 @@
-﻿#pragma once
+﻿/*
+======================================================
+[+] A very serious the Frozen Pond problem project [+]
+[+] C++ 23 Code Standard, SoA SIMD friendly Design [+]
+[+] https://github.com/Leorra                      [+]
+======================================================
+*/
+
+#pragma once
 
 #include <algorithm>
 #include <array>
