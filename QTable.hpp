@@ -10,6 +10,7 @@
 
 #include <array>
 #include <cstdint>
+#include <cstdlib>
 #include <limits>
 #include <optional>
 
@@ -97,7 +98,7 @@ namespace pond {
 
 		// Hyperparameters
 		static constexpr float alpha_ = 0.1f;    // Learning rate
-		static constexpr float epsilon_ = 0.1f;   // Exploration rate
+		static constexpr float epsilon_ = 0.1f;  // Exploration rate
 		static constexpr float gamma_ = 0.9999f; // Discount factor
 		static constexpr float step_ = -0.01f;   // Step reward penalty
 
@@ -108,10 +109,20 @@ namespace pond {
 
 		[[nodiscard]] bool createPath(auto& path) noexcept {
 			path.clear();
+			auto current_opt = pond_.getStartGoal(Type::Start);
+			if (!current_opt.has_value()) [[unlikely]] { return false; }
+
+			Position current = *current_opt;
 			const std::size_t max_len = path.capacity();
 			for (std::size_t n = 0; n < max_len; ++n) {
-				// ...
-			} return true;
+				const Direction dir = makeMove(current);
+				if (dir == Direction::Count) [[unlikely]] { return false; }
+				if (!path.push(dir)) [[unlikely]] { return false; }
+				auto next_opt = Grid::getNextPosition(current, dir);
+				if (!next_opt.has_value()) [[unlikely]] { return false; }
+				current = *next_opt;
+				if (pond_.isTerminal(current)) { return true; 	}
+			} return false;
 		}
 	};
 

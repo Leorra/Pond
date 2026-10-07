@@ -58,6 +58,12 @@ namespace pond {
 			return grid_[*idx];
 		}
 
+		[[nodiscard]] bool isTerminal(Position pos) const noexcept {
+			const Type type = getType(pos);
+			if (type == Type::Hole || type == Type::Goal) { return true; }
+			return false;
+		}
+
 		// Set the type of a cell at a given position, returning the old type or Type::Count if out of bounds/invalid.
 		// Guarantees uniqueness for Start and Goal types by clearing previous instances to Type::Empty.
 		// Start and Goal can only overwrite cells that are currently Empty (or already Start/Goal).
