@@ -29,7 +29,7 @@ int main() {
 
 	PondUtils pond_utils { pond };
 	const bool success = pond_utils.populateHoles(kHolesRate, seed);
-	if (!success) { std::println("[WARNING]: Could not populate all the requested holes!"); }
+	if (!success) { std::println("[WARN]: Could not populate all the requested holes!"); }
 
 	const std::size_t total_cells = kPondWidth * kPondHeight;
 	const std::size_t holes_count = pond_utils.getHolesCount();
