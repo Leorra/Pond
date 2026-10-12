@@ -77,7 +77,7 @@ namespace pond {
 				if (!idx_goal.has_value()) [[unlikely]] { return false; }
 				grid_[*idx_goal] = Type::Empty; // Clear previous goal position
 				goal_ = pos;
-			} else { grid_[*idx] = type; } return true;
+			} grid_[*idx] = type; return true;
 		}
 
 		// Get the start position
