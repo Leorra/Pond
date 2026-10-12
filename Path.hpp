@@ -1,15 +1,12 @@
-﻿/*
-======================================================
-[+] A very serious the Frozen Pond problem project [+]
-[+] C++ 23 Code Standard, SoA SIMD friendly Design [+]
-[+] https://github.com/Leorra                      [+]
-======================================================
-*/
+﻿/*] ============================================== [*]
+[*] A very serious the Frozen Pond problem project [*]
+[*] C++ 23 Code Standard, SoA SIMD friendly Design [*]
+[*]     (^_^) https://github.com/Leorra (^_^)      [*]
+[*] ============================================== [*/
 
 #pragma once
 
 #include <array>
-#include <cstddef>
 #include <iterator>
 
 namespace pond {

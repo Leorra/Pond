@@ -1,15 +1,12 @@
-﻿/*
-======================================================
-[+] A very serious the Frozen Pond problem project [+]
-[+] C++ 23 Code Standard, SoA SIMD friendly Design [+]
-[+] https://github.com/Leorra                      [+]
-======================================================
-*/
+﻿/*] ============================================== [*]
+[*] A very serious the Frozen Pond problem project [*]
+[*] C++ 23 Code Standard, SoA SIMD friendly Design [*]
+[*]     (^_^) https://github.com/Leorra (^_^)      [*]
+[*] ============================================== [*/
 
 #pragma once
 
 #include <algorithm>
-#include <array>
 #include <cstdint>
 #include <iterator>
 #include <print>
@@ -105,6 +102,7 @@ namespace pond {
 		}
 
 		void printPosition(Position pos) const { std::println("x={}, y={}", pos.x_, pos.y_); }
+
 		void printCell(Cell cell) const {
 			const Position pos = cell.getPosition();
 			std::print("Type={} ", pond_.getType(pos));

@@ -1,10 +1,8 @@
-﻿/*
-======================================================
-[+] A very serious the Frozen Pond problem project [+]
-[+] C++ 23 Code Standard, SoA SIMD friendly Design [+]
-[+] https://github.com/Leorra                      [+]
-======================================================
-*/
+﻿/*] ============================================== [*]
+[*] A very serious the Frozen Pond problem project [*]
+[*] C++ 23 Code Standard, SoA SIMD friendly Design [*]
+[*]     (^_^) https://github.com/Leorra (^_^)      [*]
+[*] ============================================== [*/
 
 #pragma once
 
@@ -13,7 +11,6 @@
 #include <cstdlib>
 #include <limits>
 
-#include "Path.hpp"
 #include "Pond.hpp"
 #include "XorShift32.hpp"
 
@@ -58,8 +55,7 @@ namespace pond {
 			for (std::size_t i = 0; i < kNumActions_; ++i) {
 				const auto dir = static_cast<Direction>(i);
 				if (Grid::getNextPosition(pos, dir).has_value()) { valid_dirs[valid_count++] = dir; }
-			}
-			if (valid_count == 0) [[unlikely]] { return Direction::Count; }
+			} if (valid_count == 0) [[unlikely]] { return Direction::Count; }
 			const std::size_t random_index = rng_.getRandomInt(static_cast<std::uint32_t>(valid_count));
 			return valid_dirs[random_index];
 		}
@@ -82,8 +78,7 @@ namespace pond {
 					best_actions[0] = dir;
 					count = 1;
 				} else if (std::abs(q_value - max_q) <= kEpsilon) { best_actions[count++] = dir; }
-			}
-			if (count == 0) [[unlikely]] { return Direction::Count; }
+			} if (count == 0) [[unlikely]] { return Direction::Count; }
 			const std::size_t index = rng_.getRandomInt(static_cast<std::uint32_t>(count));
 			return best_actions[index];
 		}

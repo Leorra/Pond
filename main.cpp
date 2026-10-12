@@ -1,18 +1,16 @@
-﻿/*
-======================================================
-[+] A very serious the Frozen Pond problem project [+]
-[+] C++ 23 Code Standard, SoA SIMD friendly Design [+]
-[+] https://github.com/Leorra                      [+]
-======================================================
-*/
+﻿/*] ============================================== [*]
+[*] A very serious the Frozen Pond problem project [*]
+[*] C++ 23 Code Standard, SoA SIMD friendly Design [*]
+[*]     (^_^) https://github.com/Leorra (^_^)      [*]
+[*] ============================================== [*/
 
 #include <print>
 #include <random>
 #include <type_traits>
 
+#include "Path.hpp"
 #include "Pond.hpp"
 #include "PondUtils.hpp"
-#include "Path.hpp"
 #include "QTable.hpp"
 
 using namespace pond;
