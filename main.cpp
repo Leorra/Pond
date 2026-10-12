@@ -44,7 +44,7 @@ int main() {
 	// Create a simple path through the pond using the QTable
 	bool path_created = q_table.createSinglePath(path);
 	std::size_t path_size = path.size();
-	std::println("[INFO]: Path created: Size[{}], Terminal[{}]", path_size, path_created);
+	std::println("[INFO]: Path created: Size: [{}], Terminal: [{}]", path_size, path_created);
 
 	return 0;
 }
