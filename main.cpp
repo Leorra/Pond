@@ -44,7 +44,9 @@ int main() {
 	static_assert(std::is_same_v<decltype(q_table), QTable<Pond<kPondWidth, kPondHeight>>>);
 
 	// Create a simple path through the pond using the QTable
-	static_cast<void>(q_table.createSinglePath(path));
+	bool path_created = q_table.createSinglePath(path);
+	std::size_t path_size = path.size();
+	std::println("[INFO]: Path created: Size[{}] Terminal[{}]", path_size, path_created);
 
 	return 0;
 }
