@@ -70,11 +70,13 @@ namespace pond {
 			if (!idx.has_value()) [[unlikely]] { return false; }
 			if (type == Type::Start) {
 				const auto idx_start = getIndex(start_);
+				if (!idx_start.has_value()) [[unlikely]] { return false; }
 				grid_[*idx_start] = Type::Empty; // Clear previous start position]
 				start_ = pos;
 			}
 			if (type == Type::Goal) {
 				const auto idx_goal = getIndex(goal_);
+				if (!idx_goal.has_value()) [[unlikely]] { return false; }
 				grid_[*idx_goal] = Type::Empty; // Clear previous goal position
 				goal_ = pos;
 			}
