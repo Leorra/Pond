@@ -14,8 +14,6 @@
 #include "PondUtils.hpp"
 #include "QTable.hpp"
 
-using namespace pond;
-
 static constexpr std::size_t kPondWidth = 40;
 static constexpr std::size_t kPondHeight = 20;
 static constexpr float kHolesRate = 0.25f;
@@ -23,11 +21,11 @@ static constexpr float kHolesRate = 0.25f;
 static constexpr std::size_t kPathLength = kPondWidth * kPondHeight * 10;
 
 int main() {
-	Pond<kPondWidth, kPondHeight> pond;
+	pond::Pond<kPondWidth, kPondHeight> pond;
 	std::random_device rd;
 	const std::uint32_t seed = static_cast<std::uint32_t>(rd());
 
-	PondUtils pond_utils { pond };
+	pond::PondUtils pond_utils { pond };
 	const bool success = pond_utils.populateHoles(kHolesRate, seed);
 	if (!success) { std::println("[WARN]: Could not populate all the requested holes!"); }
 
@@ -39,14 +37,14 @@ int main() {
 
 	pond_utils.print(true);
 
-	Path<Direction, kPathLength> path;
-	QTable q_table { pond };
-	static_assert(std::is_same_v<decltype(q_table), QTable<Pond<kPondWidth, kPondHeight>>>);
+	pond::Path<pond::Direction, kPathLength> path;
+	pond::QTable q_table { pond };
+	static_assert(std::is_same_v<decltype(q_table), pond::QTable<pond::Pond<kPondWidth, kPondHeight>>>);
 
 	// Create a simple path through the pond using the QTable
 	bool path_created = q_table.createSinglePath(path);
 	std::size_t path_size = path.size();
-	std::println("[INFO]: Path created: Size[{}] Terminal[{}]", path_size, path_created);
+	std::println("[INFO]: Path created: Size[{}], Terminal[{}]", path_size, path_created);
 
 	return 0;
 }
