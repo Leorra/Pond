@@ -1,10 +1,8 @@
-﻿/*
-======================================================
+﻿/*====================================================
 [+] A very serious the Frozen Pond problem project [+]
-[+] C++ 23 Code Standard, SoA SIMD friendly Design [+]
+[+] C++ 23 Code Standard, SoA SIMD friendly design [+]
 [+] https://github.com/Leorra                      [+]
-======================================================
-*/
+======================================================*/
 
 #pragma once
 
@@ -26,6 +24,9 @@ namespace pond {
 	// Basic Pond logic and representation, with a grid of cells of according types.
 	template <std::size_t width_, std::size_t height_>
 	class alignas(64) Pond {
+		static_assert(width_ > 1, "Pond width must be greater than 1.");
+		static_assert(height_ > 1, "Pond height must be greater than 1.");
+
 	private:
 		std::array<Type, width_* height_> grid_ {};
 
@@ -34,9 +35,6 @@ namespace pond {
 
 	public:
 		Pond() { grid_[0] = Type::Start; grid_[width_ * height_ - 1] = Type::Goal; }
-
-		// Get access to the grid_ array
-		[[nodiscard]] const std::array<Type, width_* height_>& getGrid() const noexcept { return grid_; }
 
 		// Get the dimensions of the pond
 		[[nodiscard]] static constexpr std::size_t getWidth() noexcept { return width_; }
@@ -88,7 +86,7 @@ namespace pond {
 		[[nodiscard]] Position getStart() const noexcept { return start_; }
 
 		// Get the goal position
-		[[nodiscard]] Position getGoal() const noexcept { return goal_;	}
+		[[nodiscard]] Position getGoal() const noexcept { return goal_; }
 
 		// Get the next position in the given direction, or std::nullopt if out of bounds
 		[[nodiscard]] static constexpr std::optional<Position> getNextPosition(Position pos, Direction dir) noexcept {
