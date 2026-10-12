@@ -1,7 +1,7 @@
 ﻿/*====================================================
 [+] A very serious the Frozen Pond problem project [+]
 [+] C++ 23 Code Standard, SoA SIMD friendly design [+]
-[+] https://github.com/Leorra                      [+]
+[+] (^_^) https://github.com/Leorra (^_^)          [+]
 ======================================================*/
 
 #pragma once
@@ -24,8 +24,7 @@ namespace pond {
 	// Basic Pond logic and representation, with a grid of cells of according types.
 	template <std::size_t width_, std::size_t height_>
 	class alignas(64) Pond {
-		static_assert(width_ > 1, "Pond width must be greater than 1.");
-		static_assert(height_ > 1, "Pond height must be greater than 1.");
+		static_assert(width_ > 1 && height_ > 1, "Pond dimensions must be greater than 1.");
 
 	private:
 		std::array<Type, width_* height_> grid_ {};
