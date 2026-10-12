@@ -12,7 +12,6 @@
 #include <cstdint>
 #include <cstdlib>
 #include <limits>
-#include <optional>
 
 #include "Path.hpp"
 #include "Pond.hpp"
@@ -107,12 +106,10 @@ namespace pond {
 			: pond_(pond), rng_(seed) {
 		}
 
-		[[nodiscard]] bool createPath(auto& path) noexcept {
+		[[nodiscard]] bool createSinglePath(auto& path) noexcept {
 			path.clear();
-			auto current_opt = pond_.getStartGoal(Type::Start);
-			if (!current_opt.has_value()) [[unlikely]] { return false; }
+			Position current = pond_.getStart();
 
-			Position current = *current_opt;
 			const std::size_t max_len = path.capacity();
 			for (std::size_t n = 0; n < max_len; ++n) {
 				const Direction dir = makeMove(current);
@@ -121,7 +118,7 @@ namespace pond {
 				auto next_opt = Grid::getNextPosition(current, dir);
 				if (!next_opt.has_value()) [[unlikely]] { return false; }
 				current = *next_opt;
-				if (pond_.isTerminal(current)) { return true; 	}
+				if (pond_.isTerminal(current)) { return true; }
 			} return false;
 		}
 	};

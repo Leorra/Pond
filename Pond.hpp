@@ -10,7 +10,6 @@
 
 #include <array>
 #include <cstdint>
-#include <iterator>
 #include <optional>
 
 namespace pond {
@@ -29,6 +28,9 @@ namespace pond {
 	class alignas(64) Pond {
 	private:
 		std::array<Type, width_* height_> grid_ {};
+
+		Position start_ { 0, 0 }; // Start position (top-left corner)
+		Position goal_ { width_ - 1, height_ - 1 }; // Goal position (bottom-right corner)
 
 	public:
 		Pond() { grid_[0] = Type::Start; grid_[width_ * height_ - 1] = Type::Goal; }
@@ -51,6 +53,12 @@ namespace pond {
 			return pos.y_ * width_ + pos.x_;
 		}
 
+		[[nodiscard]] bool isTerminal(Position pos) const noexcept {
+			const Type type = getType(pos);
+			if (type == Type::Hole || type == Type::Goal) { return true; }
+			return false;
+		}
+
 		// Get the type of a cell at a given position, returning Type::Count if out of bounds
 		[[nodiscard]] Type getType(Position pos) const noexcept {
 			const auto idx = getIndex(pos);
@@ -58,39 +66,29 @@ namespace pond {
 			return grid_[*idx];
 		}
 
-		[[nodiscard]] bool isTerminal(Position pos) const noexcept {
-			const Type type = getType(pos);
-			if (type == Type::Hole || type == Type::Goal) { return true; }
-			return false;
-		}
-
-		// Set the type of a cell at a given position, returning the old type or Type::Count if out of bounds/invalid.
-		// Guarantees uniqueness for Start and Goal types by clearing previous instances to Type::Empty.
-		// Start and Goal can only overwrite cells that are currently Empty (or already Start/Goal).
-		[[nodiscard]] Type setType(Position pos, Type type) noexcept {
+		// Set the type of a cell at a given position, returning false if out of bounds
+		[[nodiscard]] bool setType(Position pos, Type type) noexcept {
 			const auto idx = getIndex(pos);
-			if (!idx.has_value()) [[unlikely]] { return Type::Count; }
-			const Type target_cell = grid_[*idx];
-			if (type == Type::Start || type == Type::Goal) {
-				if (target_cell != Type::Empty && target_cell != type) { return Type::Count; }
-				for (auto& cell : grid_) { if (cell == type) { cell = Type::Empty; } }
+			if (!idx.has_value()) [[unlikely]] { return false; }
+			if (type == Type::Start) {
+				const auto idx_start = getIndex(start_);
+				grid_[*idx_start] = Type::Empty; // Clear previous start position]
+				start_ = pos;
 			}
-			const Type old_type = target_cell; grid_[*idx] = type;
-			return old_type;
+			if (type == Type::Goal) {
+				const auto idx_goal = getIndex(goal_);
+				grid_[*idx_goal] = Type::Empty; // Clear previous goal position
+				goal_ = pos;
+			}
+			grid_[*idx] = type;
+			return true;
 		}
 
-		// Get the position of the start or goal cell, if it exists and is unique
-		// Returns std::nullopt if the type is not Start or Goal, or if there are multiple cells of that type
-		[[nodiscard]] std::optional<Position> getStartGoal(const Type type) const noexcept {
-			if (type != Type::Start && type != Type::Goal) [[unlikely]] { return std::nullopt; }
-			std::optional<Position> found;
-			for (std::size_t i = 0; i < grid_.size(); ++i) {
-				if (grid_[i] == type) {
-					if (found.has_value()) [[unlikely]] { return std::nullopt; }
-					found = Position { i % width_, i / width_ };
-				}
-			} return found;
-		}
+		// Get the start position
+		[[nodiscard]] Position getStart() const noexcept { return start_; }
+
+		// Get the goal position
+		[[nodiscard]] Position getGoal() const noexcept { return goal_;	}
 
 		// Get the next position in the given direction, or std::nullopt if out of bounds
 		[[nodiscard]] static constexpr std::optional<Position> getNextPosition(Position pos, Direction dir) noexcept {
