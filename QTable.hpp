@@ -20,6 +20,12 @@ namespace pond {
 	template <typename Grid>
 	class alignas(64) QTable {
 	private:
+		// Hyperparameters
+		static constexpr float alpha_ = 0.1f;    // Learning rate
+		static constexpr float epsilon_ = 0.1f;  // Exploration rate
+		static constexpr float gamma_ = 0.9999f; // Discount factor
+		static constexpr float step_ = -0.01f;   // Step reward penalty
+
 		static constexpr std::size_t width_ = Grid::getWidth();
 		static constexpr std::size_t height_ = Grid::getHeight();
 
@@ -72,7 +78,6 @@ namespace pond {
 				const auto dir = static_cast<Direction>(i);
 				const float q_value = getQValue(pos, dir);
 				if (q_value == -kInfinity_) [[unlikely]] { continue; }
-
 				if (q_value > max_q + kEpsilon) {
 					max_q = q_value;
 					best_actions[0] = dir;
@@ -89,12 +94,6 @@ namespace pond {
 			if (rng < epsilon_) { return getRandomValidDirection(pos); }
 			return getMaxQDirection(pos);
 		}
-
-		// Hyperparameters
-		static constexpr float alpha_ = 0.1f;    // Learning rate
-		static constexpr float epsilon_ = 0.1f;  // Exploration rate
-		static constexpr float gamma_ = 0.9999f; // Discount factor
-		static constexpr float step_ = -0.01f;   // Step reward penalty
 
 	public:
 		explicit QTable(const Grid& pond, std::uint32_t seed = kDefaultSeed_)

@@ -4,6 +4,7 @@
 [*]     (^_^) https://github.com/Leorra (^_^)      [*]
 [*] ============================================== [*/
 
+#include <cstdint>
 #include <print>
 #include <random>
 #include <type_traits>
@@ -23,10 +24,11 @@ static constexpr std::size_t kPathLength = kPondWidth * kPondHeight * 10;
 
 int main() {
 	Pond<kPondWidth, kPondHeight> pond;
-	std::random_device random_device;
+	std::random_device rd;
+	const std::uint32_t seed = static_cast<std::uint32_t>(rd());
 
 	PondUtils pond_utils { pond };
-	const bool success = pond_utils.populateHoles(kHolesRate, random_device);
+	const bool success = pond_utils.populateHoles(kHolesRate, seed);
 	if (!success) { std::println("[WARNING]: Could not populate all the requested holes!"); }
 
 	const std::size_t total_cells = kPondWidth * kPondHeight;

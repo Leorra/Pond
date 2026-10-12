@@ -74,8 +74,7 @@ namespace pond {
 			} return holes_count;
 		}
 
-		[[nodiscard]] bool populateHoles(const float rate, std::random_device& rd) noexcept {
-			const std::uint32_t seed = rd();
+		[[nodiscard]] bool populateHoles(const float rate, const std::uint32_t seed) noexcept {
 			XorShift32 rng { seed };
 
 			constexpr std::size_t kTotalCells = width_ * height_;
