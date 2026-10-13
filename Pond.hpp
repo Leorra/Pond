@@ -16,7 +16,8 @@ namespace pond {
 	enum class Direction : std::uint8_t { Up, Down, Left, Right, Count }; // Possible movement directions
 
 	struct Position {
-		std::size_t x_; std::size_t y_;
+		std::size_t x_;
+		std::size_t y_;
 
 		[[nodiscard]] constexpr bool operator==(const Position&) const noexcept = default;
 	};

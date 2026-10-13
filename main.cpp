@@ -16,7 +16,7 @@
 
 static constexpr std::size_t kPondWidth = 40;
 static constexpr std::size_t kPondHeight = 20;
-static constexpr float kHolesRate = 0.25f;
+static constexpr float kHolesRate = 0.05f;
 
 static constexpr std::size_t kPathLength = kPondWidth * kPondHeight * 10;
 
@@ -37,7 +37,7 @@ int main() {
 
 	pond_utils.print(true);
 
-	pond::Path<pond::Direction, kPathLength> path;
+	pond::Path<pond::Position, kPathLength> path;
 	pond::QTable q_table { pond };
 	static_assert(std::is_same_v<decltype(q_table), pond::QTable<pond::Pond<kPondWidth, kPondHeight>>>);
 
