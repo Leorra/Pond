@@ -13,7 +13,7 @@ namespace pond {
 
     // Basic stack class for storing sequences of steps, with a fixed capacity
     template <typename T, std::size_t Capacity>
-    class Path {
+    class alignas(64) Path {
     private:
         std::array<T, Capacity> data_ {};
         std::size_t count_ = 0;
