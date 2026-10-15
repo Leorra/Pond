@@ -123,7 +123,7 @@ namespace pond {
 			} return false;
 		}
 
-		[[nodiscard]] bool updateTable([[maybe_unused]] auto& path) noexcept {
+		[[nodiscard]] bool updateTable(auto& path) noexcept {
 			return true; // Not yet implemented
 		}
 	};

@@ -16,7 +16,7 @@
 
 static constexpr std::size_t kPondWidth = 40;
 static constexpr std::size_t kPondHeight = 20;
-static constexpr float kHolesRate = 0.05f;
+static constexpr float kHolesRate = 0.005f;
 
 static constexpr std::size_t kPathLength = kPondWidth * kPondHeight * 10;
 
@@ -35,7 +35,7 @@ int main() {
 	std::println("[INFO]: Frozen Pond: [{}x{}] {} total\n[INFO]: Holes count: [{}] {:.2f}%",
 		kPondWidth, kPondHeight, total_cells, holes_count, holes_count_pct);
 
-	pond_utils.print(true);
+//	pond_utils.print(true);
 
 	pond::Path<pond::Position, kPathLength> path;
 	pond::QTable q_table { pond };
@@ -45,6 +45,9 @@ int main() {
 	bool path_created = q_table.createSinglePath(path);
 	std::size_t path_size = path.size();
 	std::println("[INFO]: Path created: Size: [{}], Terminal: [{}]", path_size, path_created);
+	
+	pond_utils.applyPath(path);
+	pond_utils.print(true);
 
 	return 0;
 }

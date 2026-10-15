@@ -100,6 +100,13 @@ namespace pond {
 			} return validNum >= totalHoles;
 		}
 
+		// Marks the traversed cells as Type::Path. Start, Goal and Hole cells are preserved.
+		void applyPath(const auto& path) noexcept {
+			for (const Position pos : path) {
+				if (pond_.getType(pos) == Type::Empty) { static_cast<void>(pond_.setType(pos, Type::Path)); }
+			}
+		}
+
 		void printPosition(Position pos) const { std::println("x={}, y={}", pos.x_, pos.y_); }
 
 		void printCell(Cell cell) const {

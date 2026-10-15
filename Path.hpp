@@ -7,6 +7,7 @@
 #pragma once
 
 #include <array>
+#include <cstddef>
 #include <iterator>
 
 namespace pond {
@@ -29,6 +30,12 @@ namespace pond {
         inline void clear() noexcept { count_ = 0; }
         [[nodiscard]] inline std::size_t size() const noexcept { return count_; }
         [[nodiscard]] inline bool empty() const noexcept { return count_ == 0; }
+
+        [[nodiscard]] inline const T& operator[](std::size_t index) const noexcept { return data_[index]; }
+        [[nodiscard]] inline T& operator[](std::size_t index) noexcept { return data_[index]; }
+
+        [[nodiscard]] inline auto begin() const noexcept { return data_.begin(); }
+        [[nodiscard]] inline auto end() const noexcept { return data_.begin() + count_; }
 
         [[nodiscard]] inline auto rbegin() const noexcept { return std::make_reverse_iterator(data_.begin() + count_); }
         [[nodiscard]] inline auto rend() const noexcept { return std::make_reverse_iterator(data_.begin()); }
