@@ -23,7 +23,9 @@ namespace pond {
 		static constexpr float alpha_ = 0.1f;    // Learning rate
 		static constexpr float epsilon_ = 0.1f;  // Exploration rate
 		static constexpr float gamma_ = 0.9999f; // Discount factor
-		static constexpr float step_ = -0.01f;   // Step reward penalty
+		static constexpr float step_ = -0.01f;       // Step reward penalty
+		static constexpr float kGoalReward_ = 100.0f;  // Terminal reward: goal
+		static constexpr float kHoleReward_ = -5.0f; // Terminal reward: hole
 
 		static constexpr std::size_t width_ = Grid::getWidth();
 		static constexpr std::size_t height_ = Grid::getHeight();
@@ -123,8 +125,33 @@ namespace pond {
 			} return false;
 		}
 
-		[[nodiscard]] bool updateTable(auto& path) noexcept {
-			return true; // Not yet implemented
+		// Every-visit Monte Carlo update: accumulates the discounted return of each
+		// (position, action) pair into the sum and visit tables. Returns false if
+		// the path is too short or contains a non-adjacent transition.
+		[[nodiscard]] bool updateTable(const auto& path) noexcept {
+			if (path.size() < 2) { return false; }
+
+			auto it = path.rbegin();
+			const auto rend = path.rend();
+
+			Position to = *it; // Last position of the episode
+			const Type last_type = pond_.getType(to);
+			float reward = step_;
+			if (last_type == Type::Goal) { reward += kGoalReward_; } else if (last_type == Type::Hole) { reward += kHoleReward_; }
+
+			float ret = 0.0f;
+			for (++it; it != rend; ++it) {
+				const Position from = *it;
+				const Direction dir = getDirectionBetween(from, to);
+				const auto from_idx = Grid::getIndex(from);
+				if (dir == Direction::Count || !from_idx.has_value()) [[unlikely]] { return false; }
+				ret = reward + gamma_ * ret;
+				const auto a = static_cast<std::size_t>(dir);
+				q_table_[a][*from_idx] += ret;
+				++q_visits_[a][*from_idx];
+				reward = step_; // Only the final transition carries the terminal reward
+				to = from;
+			} return true;
 		}
 	};
 
