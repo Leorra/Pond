@@ -24,6 +24,7 @@ namespace pond {
 		static constexpr float epsilon_ = 0.1f;  // Exploration rate
 		static constexpr float gamma_ = 0.9999f; // Discount factor
 		static constexpr float step_ = -0.01f;       // Step reward penalty
+
 		static constexpr float kGoalReward_ = 100.0f;  // Terminal reward: goal
 		static constexpr float kHoleReward_ = -5.0f; // Terminal reward: hole
 
