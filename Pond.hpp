@@ -101,6 +101,19 @@ namespace pond {
 			} return Position { static_cast<std::size_t>(nx), static_cast<std::size_t>(ny) };
 		}
 
+		// Get the direction leading from src to dst if the cells are 4-neighbours.
+		// Returns Direction::Count if the cells are not adjacent, are identical, or either is out of bounds.
+		[[nodiscard]] static constexpr Direction getDirection(Position src, Position dst) noexcept {
+			if (!inBounds(src) || !inBounds(dst)) [[unlikely]] { return Direction::Count; }
+			const auto dx = static_cast<std::ptrdiff_t>(dst.x_) - static_cast<std::ptrdiff_t>(src.x_);
+			const auto dy = static_cast<std::ptrdiff_t>(dst.y_) - static_cast<std::ptrdiff_t>(src.y_);
+			if (dx == 0 && dy == -1) { return Direction::Up; }
+			if (dx == 0 && dy == 1) { return Direction::Down; }
+			if (dx == -1 && dy == 0) { return Direction::Left; }
+			if (dx == 1 && dy == 0) { return Direction::Right; }
+			return Direction::Count;
+		}
+
 		// Utility method for Gamma back-tracing
 		[[nodiscard]] static constexpr Direction getReversedDirection(const Direction dir) noexcept {
 			switch (dir) {
