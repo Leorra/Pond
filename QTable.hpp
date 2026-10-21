@@ -7,6 +7,7 @@
 #pragma once
 
 #include <array>
+#include <cstddef>
 #include <cstdint>
 #include <limits>
 
@@ -20,7 +21,7 @@ namespace pond {
 	class alignas(64) QTable {
 	private:
 		// Hyperparameters
-		static constexpr float alpha_ = 0.1f;    // Learning rate
+//		static constexpr float alpha_ = 0.1f;    // Learning rate
 		static constexpr float epsilon_ = 0.1f;  // Exploration rate
 		static constexpr float gamma_ = 0.9999f; // Discount factor
 		static constexpr float step_ = -0.01f;       // Step reward penalty
@@ -83,7 +84,7 @@ namespace pond {
 					max_q = q_value;
 					best_actions[0] = dir;
 					count = 1;
-				} else if (std::abs(q_value - max_q) <= kEpsilon) {
+				} else if (q_value >= max_q - kEpsilon) {
 					best_actions[count++] = dir;
 				}
 			}
@@ -143,7 +144,7 @@ namespace pond {
 			float ret = 0.0f;
 			for (++it; it != rend; ++it) {
 				const Position from = *it;
-				const Direction dir = getDirectionBetween(from, to);
+				const Direction dir = Grid::getDirection(from, to);
 				const auto from_idx = Grid::getIndex(from);
 				if (dir == Direction::Count || !from_idx.has_value()) [[unlikely]] { return false; }
 				ret = reward + gamma_ * ret;
