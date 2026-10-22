@@ -13,11 +13,12 @@
 #include "PondUtils.hpp"
 #include "QTable.hpp"
 
-static constexpr std::size_t kPondWidth = 40;
-static constexpr std::size_t kPondHeight = 20;
-static constexpr float kHolesRate = 0.25f;
+static constexpr std::size_t kPondWidth = 30;
+static constexpr std::size_t kPondHeight = 30;
+static constexpr float kHolesRate = 0.1f;
 
 static constexpr std::size_t kPathLength = kPondWidth * kPondHeight * 10;
+static constexpr std::size_t kMaxGoalEpisodes = 100;
 static constexpr std::size_t kMaxEpisodes = 1'000'000'000;
 
 int main() {
@@ -58,6 +59,10 @@ int main() {
 			if (goal_episodes == 0) { first_goal_episode = episode; }
 			++goal_episodes;
 			best_path = path;
+			if (goal_episodes >= kMaxGoalEpisodes) {
+				std::println("[INFO]: Reached [{}] goal episodes, stopping.", kMaxGoalEpisodes);
+				break;
+			}
 //			std::println("Goal reached at episode [{}], path size: [{}]", episode, path.size());
 //			break;
 		} else { ++hole_episodes; }
