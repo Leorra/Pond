@@ -13,8 +13,8 @@
 #include "PondUtils.hpp"
 #include "QTable.hpp"
 
-static constexpr std::size_t kPondWidth = 30;
-static constexpr std::size_t kPondHeight = 30;
+static constexpr std::size_t kPondWidth = 40;
+static constexpr std::size_t kPondHeight = 10;
 static constexpr float kHolesRate = 0.1f;
 
 static constexpr std::size_t kPathLength = kPondWidth * kPondHeight * 10;
