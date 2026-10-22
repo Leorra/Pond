@@ -64,21 +64,22 @@ namespace pond {
 			return grid_[*idx];
 		}
 
-		// Set the type of a cell at a given position, returning false if out of bounds
 		[[nodiscard]] bool setType(Position pos, Type type) noexcept {
 			const auto idx = getIndex(pos);
 			if (!idx.has_value()) [[unlikely]] { return false; }
+			if (type == Type::Count) [[unlikely]] { return false; }
 			if (type == Type::Start) {
-				const auto idx_start = getIndex(start_);
-				if (!idx_start.has_value()) [[unlikely]] { return false; }
-				grid_[*idx_start] = Type::Empty; // Clear previous start position]
+				if (pos == goal_) [[unlikely]] { return false; }  // would clobber Goal
+				grid_[*getIndex(start_)] = Type::Empty;
 				start_ = pos;
 			} else if (type == Type::Goal) {
-				const auto idx_goal = getIndex(goal_);
-				if (!idx_goal.has_value()) [[unlikely]] { return false; }
-				grid_[*idx_goal] = Type::Empty; // Clear previous goal position
+				if (pos == start_) [[unlikely]] { return false; } // would clobber Start
+				grid_[*getIndex(goal_)] = Type::Empty;
 				goal_ = pos;
-			} grid_[*idx] = type; return true;
+			} else if (pos == start_ || pos == goal_) { [[unlikely]] return false; } // would orphan a marker
+
+			grid_[*idx] = type;
+			return true;
 		}
 
 		// Get the start position

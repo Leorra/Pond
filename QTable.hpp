@@ -7,7 +7,6 @@
 #pragma once
 
 #include <array>
-#include <cstddef>
 #include <cstdint>
 #include <limits>
 
@@ -22,12 +21,12 @@ namespace pond {
 	private:
 		// Hyperparameters
 //		static constexpr float alpha_ = 0.1f;    // Learning rate
-		static constexpr float epsilon_ = 0.1f;  // Exploration rate
-		static constexpr float gamma_ = 0.9999f; // Discount factor
+		static constexpr float epsilon_ = 0.5f;  // Exploration rate
+		static constexpr float gamma_ = 0.99f; // Discount factor
 		static constexpr float step_ = -0.01f;       // Step reward penalty
 
-		static constexpr float kGoalReward_ = 100.0f;  // Terminal reward: goal
-		static constexpr float kHoleReward_ = -5.0f; // Terminal reward: hole
+		static constexpr float kGoalReward_ = 10.0f;  // Terminal reward: goal
+		static constexpr float kHoleReward_ = -1.0f; // Terminal reward: hole
 
 		static constexpr std::size_t width_ = Grid::getWidth();
 		static constexpr std::size_t height_ = Grid::getHeight();
