@@ -21,9 +21,9 @@ namespace pond {
 	private:
 		// Hyperparameters
 //		static constexpr float alpha_ = 0.1f;    // Learning rate
-		static constexpr float epsilon_ = 0.5f;  // Exploration rate
-		static constexpr float gamma_ = 0.99f; // Discount factor
-		static constexpr float step_ = -0.01f;       // Step reward penalty
+		static constexpr float epsilon_ = 0.25f;  // Exploration rate
+		static constexpr float gamma_ = 0.9f; // Discount factor
+		static constexpr float step_ = -0.001f;       // Step reward penalty
 
 		static constexpr float kGoalReward_ = 10.0f;  // Terminal reward: goal
 		static constexpr float kHoleReward_ = -1.0f; // Terminal reward: hole

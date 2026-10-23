@@ -13,9 +13,9 @@
 #include "PondUtils.hpp"
 #include "QTable.hpp"
 
-static constexpr std::size_t kPondWidth = 40;
+static constexpr std::size_t kPondWidth = 20;
 static constexpr std::size_t kPondHeight = 10;
-static constexpr float kHolesRate = 0.1f;
+static constexpr float kHolesRate = 0.25f;
 
 static constexpr std::size_t kPathLength = kPondWidth * kPondHeight * 10;
 static constexpr std::size_t kMaxGoalEpisodes = 100;
@@ -50,7 +50,7 @@ int main() {
 
 	for (std::size_t episode = 1; episode <= kMaxEpisodes; ++episode) {
 		const bool terminal = q_table.createSinglePath(path);
-		if (!terminal) { ++truncated_episodes; continue; }
+		if (!terminal) { ++truncated_episodes; /* continue; */ }
 
 		// Every completed episode (goal or hole) updates the table, including the successful one.
 		static_cast<void>(q_table.updateTable(path));
@@ -63,8 +63,6 @@ int main() {
 				std::println("[INFO]: Reached [{}] goal episodes, stopping.", kMaxGoalEpisodes);
 				break;
 			}
-//			std::println("Goal reached at episode [{}], path size: [{}]", episode, path.size());
-//			break;
 		} else { ++hole_episodes; }
 	}
 
