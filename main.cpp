@@ -19,7 +19,7 @@ static constexpr std::size_t kPondHeight = 20;
 static constexpr float kHolesRate = 0.15f;
 
 static constexpr std::size_t kPathLength = kPondWidth * kPondHeight * 10;
-static constexpr std::size_t kMaxEpisodes = 10'000'000;
+static constexpr std::size_t kMaxEpisodes = 100'000'000;
 
 static constexpr float kEpsilonStart = 1.0f; // Exploration rate at the first episode
 static constexpr float kEpsilonEnd = 0.0f;   // Exploration rate at the last episode
