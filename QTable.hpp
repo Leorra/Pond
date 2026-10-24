@@ -22,21 +22,21 @@ namespace pond {
 	private:
 		// Hyperparameters
 		static constexpr float kDefaultEpsilon_ = 0.5f; // Initial exploration rate
-		static constexpr float gamma_ = 0.99f;           // Discount factor
-		static constexpr float step_ = -0.01f;           // Step reward penalty
+		static constexpr double gamma_ = 0.99;          // Discount factor
+		static constexpr double step_ = -0.01;          // Step reward penalty
 
-		static constexpr float kGoalReward_ = 100.0f;    // Terminal reward: goal
-		static constexpr float kHoleReward_ = -5.0f;    // Terminal reward: hole
+		static constexpr double kGoalReward_ = 100.0;   // Terminal reward: goal
+		static constexpr double kHoleReward_ = -5.0;    // Terminal reward: hole
 
 		static constexpr std::size_t width_ = Grid::getWidth();
 		static constexpr std::size_t height_ = Grid::getHeight();
 
 		static constexpr std::size_t kNumActions_ = static_cast<std::size_t>(Direction::Count);
 		static constexpr std::uint32_t kDefaultSeed_ = 1337U;
-		static constexpr float kInfinity_ = std::numeric_limits<float>::infinity();
+		static constexpr double kInfinity_ = std::numeric_limits<double>::infinity();
 
 		// SoA implementation of the Q-table for better cache locality and performance
-		std::array<std::array<float, width_* height_>, kNumActions_> q_table_ {};
+		std::array<std::array<double, width_* height_>, kNumActions_> q_table_ {};
 		std::array<std::array<std::size_t, width_* height_>, kNumActions_> q_visits_ {};
 		const Grid& pond_; // Reference to the grid (Pond) for which the Q-table is being maintained
 
@@ -44,16 +44,16 @@ namespace pond {
 		mutable XorShift32 rng_ { kDefaultSeed_ };
 
 		// Mean Q-value for a position and direction: -infinity if the move leaves
-		// the grid, 0.0f if unvisited.
-		[[nodiscard]] float getQValue(Position pos, Direction dir) const noexcept {
+		// the grid, 0.0 if unvisited.
+		[[nodiscard]] double getQValue(Position pos, Direction dir) const noexcept {
 			const auto idx = static_cast<std::size_t>(dir);
 			if (idx >= kNumActions_) [[unlikely]] { return -kInfinity_; }
 			if (!Grid::getNextPosition(pos, dir).has_value()) [[unlikely]] { return -kInfinity_; }
 			const auto pos_idx = Grid::getIndex(pos);
 			if (!pos_idx.has_value()) [[unlikely]] { return -kInfinity_; }
 			const std::size_t visits = q_visits_[idx][*pos_idx];
-			if (visits == 0) [[unlikely]] { return 0.0f; }
-			return q_table_[idx][*pos_idx] / static_cast<float>(visits);
+			if (visits == 0) [[unlikely]] { return 0.0; }
+			return q_table_[idx][*pos_idx] / static_cast<double>(visits);
 		}
 
 		// Uniformly random in-bounds direction, for e-greedy exploration
@@ -71,14 +71,14 @@ namespace pond {
 
 		// Max Q-value action, tie-broken randomly. Off-grid actions are excluded.
 		[[nodiscard]] Direction getMaxQDirection(Position pos) const noexcept {
-			static constexpr float kEpsilon = 1e-6f;
-			float max_q = -kInfinity_;
+			static constexpr double kEpsilon = 1e-6;
+			double max_q = -kInfinity_;
 			std::array<Direction, kNumActions_> best_actions {};
 			std::size_t count = 0;
 
 			for (std::size_t i = 0; i < kNumActions_; ++i) {
 				const auto dir = static_cast<Direction>(i);
-				const float q_value = getQValue(pos, dir);
+				const double q_value = getQValue(pos, dir);
 				if (q_value == -kInfinity_) [[unlikely]] { continue; }
 				if (q_value > max_q + kEpsilon) {
 					max_q = q_value;
@@ -150,10 +150,10 @@ namespace pond {
 
 			Position to = *it; // Last position of the episode
 			const Type last_type = pond_.getType(to);
-			float reward = step_;
+			double reward = step_;
 			if (last_type == Type::Goal) { reward += kGoalReward_; } else if (last_type == Type::Hole) { reward += kHoleReward_; }
 
-			float ret = 0.0f;
+			double ret = 0.0;
 			for (++it; it != rend; ++it) {
 				const Position from = *it;
 				const Direction dir = Grid::getDirection(from, to);
