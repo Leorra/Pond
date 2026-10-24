@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <print>
 #include <random>
+#include <type_traits>
 
 #include "Path.hpp"
 #include "Pond.hpp"
@@ -14,12 +15,14 @@
 #include "QTable.hpp"
 
 static constexpr std::size_t kPondWidth = 20;
-static constexpr std::size_t kPondHeight = 10;
-static constexpr float kHolesRate = 0.25f;
+static constexpr std::size_t kPondHeight = 20;
+static constexpr float kHolesRate = 0.15f;
 
 static constexpr std::size_t kPathLength = kPondWidth * kPondHeight * 10;
-static constexpr std::size_t kMaxGoalEpisodes = 100;
-static constexpr std::size_t kMaxEpisodes = 1'000'000'000;
+static constexpr std::size_t kMaxEpisodes = 10'000'000;
+
+static constexpr float kEpsilonStart = 1.0f; // Exploration rate at the first episode
+static constexpr float kEpsilonEnd = 0.0f;   // Exploration rate at the last episode
 
 int main() {
 	pond::Pond<kPondWidth, kPondHeight> pond;
@@ -40,7 +43,7 @@ int main() {
 
 	pond::Path<pond::Position, kPathLength> path;
 	pond::Path<pond::Position, kPathLength> best_path; // Last episode that reached the goal
-	pond::QTable q_table { pond };
+	pond::QTable q_table { pond, static_cast<std::uint32_t>(rd()) };
 	static_assert(std::is_same_v<decltype(q_table), pond::QTable<pond::Pond<kPondWidth, kPondHeight>>>);
 
 	std::size_t goal_episodes = 0;
@@ -49,25 +52,26 @@ int main() {
 	std::size_t first_goal_episode = 0;
 
 	for (std::size_t episode = 1; episode <= kMaxEpisodes; ++episode) {
+		q_table.setSeed(static_cast<std::uint32_t>(rd())); // Randomize the seed for each episode
+
+		// Linear epsilon decay from kEpsilonStart (first episode) to kEpsilonEnd (last episode)
+		const float progress = static_cast<float>(episode - 1) / static_cast<float>(kMaxEpisodes - 1);
+		static_cast<void>(q_table.setEpsilon(kEpsilonStart + (kEpsilonEnd - kEpsilonStart) * progress));
+
 		const bool terminal = q_table.createSinglePath(path);
-		if (!terminal) { ++truncated_episodes; /* continue; */ }
 
-		// Every completed episode (goal or hole) updates the table, including the successful one.
+		// Every episode updates the table: goal, hole and truncated alike.
 		static_cast<void>(q_table.updateTable(path));
-
+		if (!terminal) { ++truncated_episodes; continue; }
 		if (pond.getType(path[path.size() - 1]) == pond::Type::Goal) {
 			if (goal_episodes == 0) { first_goal_episode = episode; }
 			++goal_episodes;
 			best_path = path;
-			if (goal_episodes >= kMaxGoalEpisodes) {
-				std::println("[INFO]: Reached [{}] goal episodes, stopping.", kMaxGoalEpisodes);
-				break;
-			}
 		} else { ++hole_episodes; }
 	}
 
 	std::println("[INFO]: Episodes: [{}] Goal: [{}] Hole: [{}] Truncated: [{}]",
-		kMaxEpisodes, goal_episodes, hole_episodes, truncated_episodes);
+		goal_episodes + hole_episodes + truncated_episodes, goal_episodes, hole_episodes, truncated_episodes);
 
 	if (goal_episodes == 0) {
 		std::println("[WARN]: Goal was never reached (it may be unreachable with this hole layout).");

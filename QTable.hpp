@@ -7,6 +7,7 @@
 #pragma once
 
 #include <array>
+#include <cstddef>
 #include <cstdint>
 #include <limits>
 
@@ -20,13 +21,12 @@ namespace pond {
 	class alignas(64) QTable {
 	private:
 		// Hyperparameters
-//		static constexpr float alpha_ = 0.1f;    // Learning rate
-		static constexpr float epsilon_ = 0.25f;  // Exploration rate
-		static constexpr float gamma_ = 0.9f; // Discount factor
-		static constexpr float step_ = -0.001f;       // Step reward penalty
+		static constexpr float kDefaultEpsilon_ = 0.5f; // Initial exploration rate
+		static constexpr float gamma_ = 0.99f;           // Discount factor
+		static constexpr float step_ = -0.01f;           // Step reward penalty
 
-		static constexpr float kGoalReward_ = 10.0f;  // Terminal reward: goal
-		static constexpr float kHoleReward_ = -1.0f; // Terminal reward: hole
+		static constexpr float kGoalReward_ = 100.0f;    // Terminal reward: goal
+		static constexpr float kHoleReward_ = -5.0f;    // Terminal reward: hole
 
 		static constexpr std::size_t width_ = Grid::getWidth();
 		static constexpr std::size_t height_ = Grid::getHeight();
@@ -40,6 +40,7 @@ namespace pond {
 		std::array<std::array<std::size_t, width_* height_>, kNumActions_> q_visits_ {};
 		const Grid& pond_; // Reference to the grid (Pond) for which the Q-table is being maintained
 
+		float epsilon_ { kDefaultEpsilon_ }; // Exploration rate, adjustable at runtime
 		mutable XorShift32 rng_ { kDefaultSeed_ };
 
 		// Mean Q-value for a position and direction: -infinity if the move leaves
@@ -103,6 +104,17 @@ namespace pond {
 			: pond_(pond), rng_(seed) {
 		}
 
+		// Sets the exploration rate. Returns false (value unchanged) if it is outside [0, 1] or NaN.
+		[[nodiscard]] bool setEpsilon(const float epsilon) noexcept {
+			if (!(epsilon >= 0.0f && epsilon <= 1.0f)) [[unlikely]] { return false; }
+			epsilon_ = epsilon;
+			return true;
+		}
+
+		[[nodiscard]] float getEpsilon() const noexcept { return epsilon_; }
+
+		void setSeed(const std::uint32_t seed) noexcept { rng_.setSeed(seed); }
+
 		// Generates one e-greedy episode into 'path'. Returns true iff a terminal
 		// cell (goal or hole) was reached; false denotes a truncated or failed episode.
 		[[nodiscard]] bool createSinglePath(auto& path) noexcept {
@@ -127,8 +139,9 @@ namespace pond {
 		}
 
 		// Every-visit Monte Carlo update: accumulates the discounted return of each
-		// (position, action) pair into the sum and visit tables. Returns false if
-		// the path is too short or contains a non-adjacent transition.
+		// (position, action) pair into the sum and visit tables. Also accepts truncated
+		// episodes: their last transition then carries only the step penalty (no terminal reward).
+		// Returns false if the path is too short or contains a non-adjacent transition.
 		[[nodiscard]] bool updateTable(const auto& path) noexcept {
 			if (path.size() < 2) { return false; }
 
