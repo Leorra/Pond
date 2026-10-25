@@ -14,12 +14,15 @@
 #include "PondUtils.hpp"
 #include "QTable.hpp"
 
-static constexpr std::size_t kPondWidth = 15;
-static constexpr std::size_t kPondHeight = 15;
+static constexpr std::size_t kPondWidth = 25;
+static constexpr std::size_t kPondHeight = 25;
 static constexpr float kHolesRate = 0.15f;
 
 static constexpr std::size_t kPathLength = kPondWidth * kPondHeight * 10;
-static constexpr std::size_t kMaxEpisodes = 100'000'000;
+static constexpr std::size_t kMaxEpisodes = 1'000'000'000;
+static constexpr std::size_t kMaxGoalEpisodes = 10'000;
+static constexpr std::size_t kPeriodEpisodes = 1'000'000;
+
 
 static constexpr float kEpsilonStart = 1.0f; // Exploration rate at the first episode
 static constexpr float kEpsilonEnd = 0.0f;   // Exploration rate at the last episode
@@ -67,7 +70,12 @@ int main() {
 			if (goal_episodes == 0) { first_goal_episode = episode; }
 			++goal_episodes;
 			best_path = path;
+			if (goal_episodes >= kMaxGoalEpisodes) { break; }
 		} else { ++hole_episodes; }
+		if (episode % kPeriodEpisodes == 0) {
+			std::print("[INFO]: Episode [{}] Hole: [{}] Truncated: [{}] Goal: [{}]\r",
+				episode, hole_episodes, truncated_episodes, goal_episodes);
+		}
 	}
 
 	std::println("[INFO]: Episodes: [{}] Goal: [{}] Hole: [{}] Truncated: [{}]",
