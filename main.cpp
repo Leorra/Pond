@@ -14,18 +14,18 @@
 #include "PondUtils.hpp"
 #include "QTable.hpp"
 
-static constexpr std::size_t kPondWidth = 25;
-static constexpr std::size_t kPondHeight = 25;
+static constexpr std::size_t kPondWidth = 20;
+static constexpr std::size_t kPondHeight = 20;
 static constexpr float kHolesRate = 0.15f;
 
-static constexpr std::size_t kPathLength = kPondWidth * kPondHeight * 10;
-static constexpr std::size_t kMaxEpisodes = 1'000'000'000;
-static constexpr std::size_t kMaxGoalEpisodes = 10'000;
-static constexpr std::size_t kPeriodEpisodes = 1'000'000;
+static constexpr std::size_t kPathLength = kPondWidth * kPondHeight * 1;
+static constexpr std::size_t kMaxEpisodes = 100'000'000;
+static constexpr std::size_t kMaxGoalEpisodes = 100'000;
+static constexpr std::size_t kPeriodEpisodes = 1'000;
 
 
 static constexpr float kEpsilonStart = 1.0f; // Exploration rate at the first episode
-static constexpr float kEpsilonEnd = 0.0f;   // Exploration rate at the last episode
+static constexpr float kEpsilonEnd = 0.1f;   // Exploration rate at the last episode
 
 int main() {
 	pond::Pond<kPondWidth, kPondHeight> pond;
@@ -78,8 +78,8 @@ int main() {
 		}
 	}
 
-	std::println("[INFO]: Episodes: [{}] Goal: [{}] Hole: [{}] Truncated: [{}]",
-		goal_episodes + hole_episodes + truncated_episodes, goal_episodes, hole_episodes, truncated_episodes);
+	std::println("[INFO]: Episodes: [{}] Hole: [{}] Truncated: [{}] Goal: [{}]",
+		goal_episodes + hole_episodes + truncated_episodes, hole_episodes, truncated_episodes, goal_episodes);
 
 	if (goal_episodes == 0) {
 		std::println("[WARN]: Goal was never reached (it may be unreachable with this hole layout).");
