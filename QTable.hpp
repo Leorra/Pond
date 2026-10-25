@@ -25,7 +25,7 @@ namespace pond {
 		static constexpr double gamma_ = 0.99;          // Discount factor
 		static constexpr double step_ = -0.01;          // Step reward penalty
 
-		static constexpr double kGoalReward_ = 100.0;   // Terminal reward: goal
+		static constexpr double kGoalReward_ = 1000.0;   // Terminal reward: goal
 		static constexpr double kHoleReward_ = -5.0;    // Terminal reward: hole
 
 		static constexpr std::size_t width_ = Grid::getWidth();
