@@ -18,8 +18,8 @@ static constexpr std::size_t kPondWidth = 20;
 static constexpr std::size_t kPondHeight = 20;
 static constexpr float kHolesRate = 0.15f;
 
-static constexpr std::size_t kPathLength = kPondWidth * kPondHeight * 1;
-static constexpr std::size_t kMaxEpisodes = 100'000'000;
+static constexpr std::size_t kPathLength = kPondWidth * kPondHeight * 10;
+static constexpr std::size_t kMaxEpisodes = 1'000'000'000;
 static constexpr std::size_t kMaxGoalEpisodes = 100'000;
 static constexpr std::size_t kPeriodEpisodes = 1'000;
 
